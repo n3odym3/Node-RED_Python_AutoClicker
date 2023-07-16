@@ -1,7 +1,8 @@
 # Node-RED_Python_AutoClicker
 NodeRED flow + Python script to automate computer from newtork
 
-[![Video tutorial (FR)](https://img.youtube.com/vi/YOUTUBE_VIDEO_ID_HERE/0.jpg)](https://www.youtube.com/watch?v=YOUTUBE_VIDEO_ID_HERE)
+[Video tutorial (FR)](https://youtu.be/9eXCnBu_FZ0)
+
 
 ## What is the purpose of this code ?
 
