@@ -1,0 +1,1974 @@
+[
+    {
+        "id": "c32a07e2836e9c9e",
+        "type": "subflow",
+        "name": "Write text",
+        "info": "",
+        "category": "",
+        "in": [
+            {
+                "x": 50,
+                "y": 80,
+                "wires": [
+                    {
+                        "id": "54cab1ce0458c397"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 1130,
+                "y": 70,
+                "wires": [
+                    {
+                        "id": "c4f1b35772a214e9",
+                        "port": 1
+                    },
+                    {
+                        "id": "db7455c3111b0810",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": [
+            {
+                "name": "Enter",
+                "type": "bool",
+                "value": "true",
+                "ui": {
+                    "icon": "font-awesome/fa-check",
+                    "label": {
+                        "en-US": "Enter after writing"
+                    },
+                    "type": "input",
+                    "opts": {
+                        "types": [
+                            "bool"
+                        ]
+                    }
+                }
+            }
+        ],
+        "meta": {},
+        "color": "#C0DEED",
+        "inputLabels": [
+            "Text"
+        ],
+        "outputLabels": [
+            "Result"
+        ],
+        "icon": "font-awesome/fa-pencil-square-o",
+        "status": {
+            "x": 1100,
+            "y": 120,
+            "wires": [
+                {
+                    "id": "54cab1ce0458c397",
+                    "port": 1
+                },
+                {
+                    "id": "4d4e070a5c3a60c6",
+                    "port": 1
+                },
+                {
+                    "id": "c4f1b35772a214e9",
+                    "port": 2
+                },
+                {
+                    "id": "db7455c3111b0810",
+                    "port": 1
+                }
+            ]
+        }
+    },
+    {
+        "id": "4683a888f250b4f2",
+        "type": "http request",
+        "z": "c32a07e2836e9c9e",
+        "name": "Write Text",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 350,
+        "y": 80,
+        "wires": [
+            [
+                "4d4e070a5c3a60c6"
+            ]
+        ]
+    },
+    {
+        "id": "54cab1ce0458c397",
+        "type": "function",
+        "z": "c32a07e2836e9c9e",
+        "name": "Set Request",
+        "func": "const IP = global.get(\"Client_IP\")||'';\nconst Text = msg.payload;\n\nreturn [\n    {\n        payload: Text,\n        url: IP + \"/write\",\n        requestTimeout: 5000\n    },\n\n    {\n        payload:\n        {\n            fill: \"yellow\",\n            text: \"Writing : \" + Text\n        }\n    } \n]",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 200,
+        "y": 80,
+        "wires": [
+            [
+                "4683a888f250b4f2"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "4d4e070a5c3a60c6",
+        "type": "function",
+        "z": "c32a07e2836e9c9e",
+        "name": "Result ?",
+        "func": "if (msg.statusCode == 200) {\n    return [\n        {\n            payload : msg.payload\n        },\n\n        {\n            payload:\n            {\n                fill: \"green\",\n                text: msg.payload\n            }\n        }\n    ]\n}\nelse {\n    return [\n        null,\n        {\n            payload:\n            {\n                fill: \"red\",\n                text: msg.payload\n            }\n        }\n    ]\n}\n\n\n",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 490,
+        "y": 80,
+        "wires": [
+            [
+                "c4f1b35772a214e9"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "4585704e39cfd94b",
+        "type": "catch",
+        "z": "c32a07e2836e9c9e",
+        "name": "Error HTTP",
+        "scope": [
+            "4683a888f250b4f2",
+            "309d9a4322756a6a"
+        ],
+        "uncaught": false,
+        "x": 340,
+        "y": 130,
+        "wires": [
+            [
+                "5346c4d1a143ebeb"
+            ]
+        ]
+    },
+    {
+        "id": "5346c4d1a143ebeb",
+        "type": "function",
+        "z": "c32a07e2836e9c9e",
+        "name": "Error",
+        "func": "return {\n    payload:\n        {\n            fill: \"red\",\n            text: msg.error\n        }\n};\n\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 490,
+        "y": 130,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c4f1b35772a214e9",
+        "type": "function",
+        "z": "c32a07e2836e9c9e",
+        "name": "Enter ?",
+        "func": "const IP = global.get(\"Client_IP\")||'';\nconst Enter = env.get(\"Enter\")||false;\n\nif(Enter){\n    return [\n        {\n            payload: 'enter',\n            url: IP + \"/press_key\",\n            requestTimeout: 3000\n        },\n        null,\n        {\n            payload:\n            {\n                fill: \"yellow\",\n                text: \"Pressing enter\"\n            }\n        }\n    ]\n}\nelse {\n    return [\n        null,\n        msg,\n        null\n    ]\n}\n",
+        "outputs": 3,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 640,
+        "y": 80,
+        "wires": [
+            [
+                "309d9a4322756a6a"
+            ],
+            [],
+            []
+        ]
+    },
+    {
+        "id": "309d9a4322756a6a",
+        "type": "http request",
+        "z": "c32a07e2836e9c9e",
+        "name": "Key press",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 810,
+        "y": 70,
+        "wires": [
+            [
+                "db7455c3111b0810"
+            ]
+        ]
+    },
+    {
+        "id": "db7455c3111b0810",
+        "type": "function",
+        "z": "c32a07e2836e9c9e",
+        "name": "Result ?",
+        "func": "if (msg.statusCode == 200) {\n    return [\n        {\n            payload : msg.payload\n        },\n\n        {\n            payload:\n            {\n                fill: \"green\",\n                text: msg.payload\n            }\n        }\n    ]\n}\nelse {\n    return [\n        null,\n        {\n            payload:\n            {\n                fill: \"red\",\n                text: msg.payload\n            }\n        }\n    ]\n}\n\n\n",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 960,
+        "y": 70,
+        "wires": [
+            [],
+            []
+        ]
+    },
+    {
+        "id": "962e0469ceb1a72d",
+        "type": "subflow",
+        "name": "Press key",
+        "info": "",
+        "category": "",
+        "in": [
+            {
+                "x": 70,
+                "y": 80,
+                "wires": [
+                    {
+                        "id": "678638185ccd85f4"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 680,
+                "y": 80,
+                "wires": [
+                    {
+                        "id": "cab02aae2c63ca85",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": [
+            {
+                "name": "Hotkey",
+                "type": "bool",
+                "value": "false",
+                "ui": {
+                    "icon": "font-awesome/fa-sort-numeric-asc",
+                    "type": "input",
+                    "opts": {
+                        "types": [
+                            "bool"
+                        ]
+                    }
+                }
+            },
+            {
+                "name": "Key_list",
+                "type": "str",
+                "value": "enter",
+                "ui": {
+                    "icon": "font-awesome/fa-keyboard-o",
+                    "label": {
+                        "en-US": "Key"
+                    },
+                    "type": "select",
+                    "opts": {
+                        "opts": [
+                            {
+                                "l": {
+                                    "en-US": "enter"
+                                },
+                                "v": "enter"
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "name": "Key_custom",
+                "type": "str",
+                "value": "",
+                "ui": {
+                    "icon": "font-awesome/fa-keyboard-o",
+                    "label": {
+                        "en-US": "Custom key"
+                    },
+                    "type": "input",
+                    "opts": {
+                        "types": [
+                            "str"
+                        ]
+                    }
+                }
+            }
+        ],
+        "meta": {},
+        "color": "#C0DEED",
+        "icon": "font-awesome/fa-keyboard-o",
+        "status": {
+            "x": 680,
+            "y": 130,
+            "wires": [
+                {
+                    "id": "959e0fe550fbaad4",
+                    "port": 0
+                },
+                {
+                    "id": "cab02aae2c63ca85",
+                    "port": 1
+                },
+                {
+                    "id": "678638185ccd85f4",
+                    "port": 1
+                }
+            ]
+        }
+    },
+    {
+        "id": "577ccbbaefe1a4e4",
+        "type": "catch",
+        "z": "962e0469ceb1a72d",
+        "name": "Error HTTP",
+        "scope": [
+            "ce85b5bd754c5650",
+            "a386798c468804ae"
+        ],
+        "uncaught": false,
+        "x": 170,
+        "y": 130,
+        "wires": [
+            [
+                "959e0fe550fbaad4"
+            ]
+        ]
+    },
+    {
+        "id": "959e0fe550fbaad4",
+        "type": "function",
+        "z": "962e0469ceb1a72d",
+        "name": "Error",
+        "func": "return {\n    payload:\n        {\n            fill: \"red\",\n            text: msg.error\n        }\n};\n\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 340,
+        "y": 130,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "678638185ccd85f4",
+        "type": "function",
+        "z": "962e0469ceb1a72d",
+        "name": "Keypress",
+        "func": "const IP = global.get(\"Client_IP\") || '';\nconst Key_list = env.get(\"Key_list\") || '';\nconst Key_custom = env.get(\"Key_custom\") || '';\nconst Hotkey = env.get(\"Hotkey\")||false;\n\nlet Key = '';\n\nKey = Key_list;\nif (Key_custom != '') {\n    Key = JSON.stringify(Key_custom.split(','));\n}\nif(msg.key){\n    Key = msg.key;\n}\n\nif(Hotkey){\n    return [\n        {\n            payload: Key,\n            url: IP + \"/press_hotkey\",\n            requestTimeout: 5000\n        },\n        {\n            payload:\n            {\n                fill: \"yellow\",\n                text: \"Pressing key : \" + Key\n            }\n        }\n    ]\n}\nelse{\n    return [\n        {\n            payload: Key,\n            url: IP + \"/press_key\"\n        },\n        {\n            payload:\n            {\n                fill: \"yellow\",\n                text: \"Pressing hotkey : \" + Key\n            }\n        }\n    ]\n}\n",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 180,
+        "y": 80,
+        "wires": [
+            [
+                "a386798c468804ae"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "a386798c468804ae",
+        "type": "http request",
+        "z": "962e0469ceb1a72d",
+        "name": "Key press",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 350,
+        "y": 80,
+        "wires": [
+            [
+                "cab02aae2c63ca85"
+            ]
+        ]
+    },
+    {
+        "id": "cab02aae2c63ca85",
+        "type": "function",
+        "z": "962e0469ceb1a72d",
+        "name": "Result ?",
+        "func": "if (msg.statusCode == 200) {\n    return [\n        {\n            payload : msg.payload\n        },\n        {\n            payload:\n            {\n                fill: \"green\",\n                text: msg.payload\n            }\n        }\n    ]\n}\nelse {\n    return [\n        null,\n        {\n            payload:\n            {\n                fill: \"red\",\n                text: msg.payload\n            }\n        }\n    ]\n}\n\n\n",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 510,
+        "y": 80,
+        "wires": [
+            [],
+            []
+        ]
+    },
+    {
+        "id": "9d4df3be6cf02735",
+        "type": "subflow",
+        "name": "Clic on IMG",
+        "info": "Find an icon/button/element using template matching on the screen and click on it.\r\n\r\n# Inputs\r\n ``\r\ntest\r\n``",
+        "category": "",
+        "in": [
+            {
+                "x": 100,
+                "y": 100,
+                "wires": [
+                    {
+                        "id": "65df7d8fd04632e6"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 1040,
+                "y": 100,
+                "wires": [
+                    {
+                        "id": "7196c0c23ca4bda2",
+                        "port": 0
+                    }
+                ]
+            },
+            {
+                "x": 440,
+                "y": 50,
+                "wires": [
+                    {
+                        "id": "1d2ea30f8cd67c82",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": [
+            {
+                "name": "double_clic",
+                "type": "bool",
+                "value": "false",
+                "ui": {
+                    "icon": "font-awesome/fa-mouse-pointer",
+                    "label": {
+                        "en-US": "Double clic"
+                    },
+                    "type": "input",
+                    "opts": {
+                        "types": [
+                            "bool"
+                        ]
+                    }
+                }
+            },
+            {
+                "name": "img_list",
+                "type": "str",
+                "value": "deploy.PNG",
+                "ui": {
+                    "icon": "font-awesome/fa-file-picture-o",
+                    "label": {
+                        "en-US": "Icon name"
+                    },
+                    "type": "select",
+                    "opts": {
+                        "opts": [
+                            {
+                                "l": {
+                                    "en-US": "Deploy"
+                                },
+                                "v": "deploy.PNG"
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "name": "img_custom",
+                "type": "str",
+                "value": "",
+                "ui": {
+                    "icon": "font-awesome/fa-file-image-o",
+                    "type": "input",
+                    "opts": {
+                        "types": [
+                            "str"
+                        ]
+                    }
+                }
+            }
+        ],
+        "meta": {},
+        "color": "#C0DEED",
+        "inputLabels": [
+            "Trigger"
+        ],
+        "outputLabels": [
+            "Result",
+            ""
+        ],
+        "icon": "font-awesome/fa-mouse-pointer",
+        "status": {
+            "x": 1010,
+            "y": 150,
+            "wires": [
+                {
+                    "id": "7196c0c23ca4bda2",
+                    "port": 1
+                },
+                {
+                    "id": "f7f27841a3049434",
+                    "port": 1
+                },
+                {
+                    "id": "65df7d8fd04632e6",
+                    "port": 1
+                },
+                {
+                    "id": "e3b72062f00703ee",
+                    "port": 0
+                },
+                {
+                    "id": "47d6b219fd5326db",
+                    "port": 0
+                }
+            ]
+        }
+    },
+    {
+        "id": "b24c59e818d8a4df",
+        "type": "http request",
+        "z": "9d4df3be6cf02735",
+        "name": "Find button",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "query",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 480,
+        "y": 100,
+        "wires": [
+            [
+                "f7f27841a3049434"
+            ]
+        ]
+    },
+    {
+        "id": "65df7d8fd04632e6",
+        "type": "function",
+        "z": "9d4df3be6cf02735",
+        "name": "Find img",
+        "func": "const IP = global.get(\"Client_IP\")||'';\nconst Button_list = env.get(\"img_list\")||'';\nconst Button_custom = env.get(\"img_custom\") || '';\nlet Button = '';\n\nButton = Button_list;\nif (Button_custom != ''){\n    Button = Button_custom;\n}\nif(msg.button){\n    Button = msg.button;\n}\n\nreturn [\n    {\n        path : \"root/.node-red/icons/\" + Button,\n        url: IP + \"/find_base64\",\n        requestTimeout: 5000\n    },\n\n    {\n        payload:\n        {\n            fill: \"yellow\",\n            text: \"Looking for button : \" + Button\n        }\n    } \n]",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 200,
+        "y": 100,
+        "wires": [
+            [
+                "1d2ea30f8cd67c82"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "1d2ea30f8cd67c82",
+        "type": "jimp-image",
+        "z": "9d4df3be6cf02735",
+        "name": "",
+        "data": "path",
+        "dataType": "msg",
+        "ret": "b64",
+        "parameter1": "",
+        "parameter1Type": "msg",
+        "parameter2": "",
+        "parameter2Type": "msg",
+        "parameter3": "",
+        "parameter3Type": "msg",
+        "parameter4": "",
+        "parameter4Type": "msg",
+        "parameter5": "",
+        "parameter5Type": "msg",
+        "parameter6": "",
+        "parameter6Type": "msg",
+        "parameter7": "",
+        "parameter7Type": "msg",
+        "parameter8": "",
+        "parameter8Type": "msg",
+        "sendProperty": "payload",
+        "sendPropertyType": "msg",
+        "parameterCount": 0,
+        "jimpFunction": "none",
+        "selectedJimpFunction": {
+            "name": "none",
+            "fn": "none",
+            "description": "Just loads the image.",
+            "parameters": []
+        },
+        "x": 330,
+        "y": 100,
+        "wires": [
+            [
+                "b24c59e818d8a4df"
+            ]
+        ]
+    },
+    {
+        "id": "55a6a6be3369cad8",
+        "type": "http request",
+        "z": "9d4df3be6cf02735",
+        "name": "Clic",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "query",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 770,
+        "y": 100,
+        "wires": [
+            [
+                "7196c0c23ca4bda2"
+            ]
+        ]
+    },
+    {
+        "id": "1af5fcc33c9acea0",
+        "type": "catch",
+        "z": "9d4df3be6cf02735",
+        "name": "IMG Error",
+        "scope": [
+            "1d2ea30f8cd67c82"
+        ],
+        "uncaught": false,
+        "x": 200,
+        "y": 150,
+        "wires": [
+            [
+                "e3b72062f00703ee"
+            ]
+        ]
+    },
+    {
+        "id": "e3b72062f00703ee",
+        "type": "function",
+        "z": "9d4df3be6cf02735",
+        "name": "Error",
+        "func": "\nreturn {\n    payload:\n        {\n            fill: \"red\",\n            text: msg.error.message\n        }\n};\n\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 150,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "f7f27841a3049434",
+        "type": "function",
+        "z": "9d4df3be6cf02735",
+        "name": "Result ?",
+        "func": "const IP = global.get(\"Client_IP\") || '';\nlet url = IP + \"/clic\";\n\nconst double_clic = env.get(\"double_clic\") || false;\nif(double_clic){\n    url = IP + \"/double_clic\";\n}\n\nif (msg.statusCode == 200) {\n    return [\n        {   \n            url: url,\n            payload : msg.payload,\n            requestTimeout: 5000\n        },\n        {\n            payload:{\n                fill: \"green\",\n                text: msg.payload\n            }\n        }\n    ]\n}\nelse {\n    return [\n        null,\n        {payload:{\n                fill: \"red\",\n                text: msg.payload\n            }\n        }\n    ]\n}\n\n\n",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 630,
+        "y": 100,
+        "wires": [
+            [
+                "55a6a6be3369cad8"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "116239f3326219f3",
+        "type": "catch",
+        "z": "9d4df3be6cf02735",
+        "name": "HTTP Error",
+        "scope": [
+            "b24c59e818d8a4df",
+            "55a6a6be3369cad8"
+        ],
+        "uncaught": false,
+        "x": 210,
+        "y": 190,
+        "wires": [
+            [
+                "47d6b219fd5326db"
+            ]
+        ]
+    },
+    {
+        "id": "47d6b219fd5326db",
+        "type": "function",
+        "z": "9d4df3be6cf02735",
+        "name": "Error",
+        "func": "return {\n    payload:\n        {\n            fill: \"red\",\n            text: msg.error.message\n        }\n};\n\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 360,
+        "y": 190,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "7196c0c23ca4bda2",
+        "type": "function",
+        "z": "9d4df3be6cf02735",
+        "name": "Result ?",
+        "func": "if (msg.statusCode == 200) {\n    return [\n        {\n            payload: msg.payload\n        },\n\n        {\n            payload:\n            {\n                fill: \"green\",\n                text: msg.payload\n            }\n        }\n    ]\n}\nelse {\n    return [\n        null,\n        {\n            payload:\n            {\n                fill: \"red\",\n                text: msg.payload\n            }\n        }\n    ]\n}\n\n\n",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 900,
+        "y": 100,
+        "wires": [
+            [],
+            []
+        ]
+    },
+    {
+        "id": "6c4ed0229be78487",
+        "type": "subflow",
+        "name": "List windows",
+        "info": "",
+        "category": "",
+        "in": [
+            {
+                "x": 90,
+                "y": 80,
+                "wires": [
+                    {
+                        "id": "6aa9012a17ba5727"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 620,
+                "y": 80,
+                "wires": [
+                    {
+                        "id": "9887d2ead7937de1",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": [],
+        "meta": {},
+        "color": "#C0DEED",
+        "icon": "font-awesome/fa-list-alt",
+        "status": {
+            "x": 620,
+            "y": 130,
+            "wires": [
+                {
+                    "id": "0d02faa297713b71",
+                    "port": 0
+                },
+                {
+                    "id": "9887d2ead7937de1",
+                    "port": 1
+                },
+                {
+                    "id": "6aa9012a17ba5727",
+                    "port": 1
+                }
+            ]
+        }
+    },
+    {
+        "id": "9cfb1365fcb1585a",
+        "type": "http request",
+        "z": "6c4ed0229be78487",
+        "name": "Write Text",
+        "method": "GET",
+        "ret": "txt",
+        "paytoqs": "ignore",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 350,
+        "y": 80,
+        "wires": [
+            [
+                "9887d2ead7937de1"
+            ]
+        ]
+    },
+    {
+        "id": "6aa9012a17ba5727",
+        "type": "function",
+        "z": "6c4ed0229be78487",
+        "name": "Set Request",
+        "func": "const IP = global.get(\"Client_IP\")||'';\n\nreturn [\n    {\n        url: IP + \"/list_windows\",\n        requestTimeout: 5000\n    },\n\n    {\n        payload:\n        {\n            fill: \"yellow\",\n            text: \"Lisiting windows\"\n        }\n    } \n]",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 200,
+        "y": 80,
+        "wires": [
+            [
+                "9cfb1365fcb1585a"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "9887d2ead7937de1",
+        "type": "function",
+        "z": "6c4ed0229be78487",
+        "name": "Result ?",
+        "func": "if (msg.statusCode == 200) {\n    let list = msg.payload;\n    list = list.replace(/'/g, '\"');\n    return [\n        {\n            payload: JSON.parse(list)\n        },\n        {\n            payload:\n            {\n                fill: \"green\",\n                text: \"OK\"\n            }\n        }\n    ]\n}\nelse {\n    return [\n        null,\n        {\n            payload:\n            {\n                fill: \"red\",\n                text: msg.payload\n            }\n        }\n    ]\n}\n\n\n",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 500,
+        "y": 80,
+        "wires": [
+            [],
+            []
+        ]
+    },
+    {
+        "id": "4087fc448868d6a2",
+        "type": "catch",
+        "z": "6c4ed0229be78487",
+        "name": "Error HTTP",
+        "scope": [
+            "9cfb1365fcb1585a"
+        ],
+        "uncaught": false,
+        "x": 340,
+        "y": 130,
+        "wires": [
+            [
+                "0d02faa297713b71"
+            ]
+        ]
+    },
+    {
+        "id": "0d02faa297713b71",
+        "type": "function",
+        "z": "6c4ed0229be78487",
+        "name": "Error",
+        "func": "return {\n    payload:\n        {\n            fill: \"red\",\n            text: msg.error\n        }\n};\n\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 490,
+        "y": 130,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "92e6e0f4b69080d2",
+        "type": "subflow",
+        "name": "Move Window",
+        "info": "",
+        "category": "",
+        "in": [
+            {
+                "x": 110,
+                "y": 60,
+                "wires": [
+                    {
+                        "id": "874aa1485fdf7d11"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 680,
+                "y": 60,
+                "wires": [
+                    {
+                        "id": "94d8487a8e9b9e49",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": [
+            {
+                "name": "Mode",
+                "type": "str",
+                "value": "name",
+                "ui": {
+                    "type": "select",
+                    "opts": {
+                        "opts": [
+                            {
+                                "l": {
+                                    "en-US": "Window name"
+                                },
+                                "v": "name"
+                            },
+                            {
+                                "l": {
+                                    "en-US": "Process name"
+                                },
+                                "v": "process"
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "name": "Window_list",
+                "type": "str",
+                "value": "Node",
+                "ui": {
+                    "icon": "font-awesome/fa-window-maximize",
+                    "label": {
+                        "en-US": "Name"
+                    },
+                    "type": "select",
+                    "opts": {
+                        "opts": [
+                            {
+                                "l": {
+                                    "en-US": "Node-RED"
+                                },
+                                "v": "Node"
+                            }
+                        ]
+                    }
+                }
+            },
+            {
+                "name": "Window_custom",
+                "type": "str",
+                "value": "",
+                "ui": {
+                    "icon": "font-awesome/fa-window-maximize",
+                    "label": {
+                        "en-US": "Cutom name"
+                    },
+                    "type": "input",
+                    "opts": {
+                        "types": [
+                            "str"
+                        ]
+                    }
+                }
+            }
+        ],
+        "meta": {},
+        "color": "#C0DEED",
+        "inputLabels": [
+            "Trigger"
+        ],
+        "outputLabels": [
+            "Result"
+        ],
+        "icon": "font-awesome/fa-window-restore",
+        "status": {
+            "x": 650,
+            "y": 110,
+            "wires": [
+                {
+                    "id": "874aa1485fdf7d11",
+                    "port": 1
+                },
+                {
+                    "id": "94d8487a8e9b9e49",
+                    "port": 1
+                },
+                {
+                    "id": "84b163d4f844455b",
+                    "port": 0
+                }
+            ]
+        }
+    },
+    {
+        "id": "a611ccc32d7daa9f",
+        "type": "http request",
+        "z": "92e6e0f4b69080d2",
+        "name": "Move to front",
+        "method": "POST",
+        "ret": "txt",
+        "paytoqs": "query",
+        "url": "",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "insecureHTTPParser": false,
+        "authType": "",
+        "senderr": false,
+        "headers": [],
+        "x": 380,
+        "y": 60,
+        "wires": [
+            [
+                "94d8487a8e9b9e49"
+            ]
+        ]
+    },
+    {
+        "id": "874aa1485fdf7d11",
+        "type": "function",
+        "z": "92e6e0f4b69080d2",
+        "name": "Set Request",
+        "func": "const IP = global.get(\"Client_IP\")||'';\nlet Mode = env.get(\"Mode\")||'';\nconst Window_list = env.get(\"Window_list\")||'';\nconst Window_custom = env.get(\"Window_custom\") || '';\nlet Window = '';\n\nWindow = Window_list;\nif(Window_custom != ''){\n    Window = Window_custom;\n}\n\nif(msg.window){\n    Window = msg.window\n}\nif(msg.mode){\n    Mode = msg.mode\n}\n\nreturn [\n    {\n        payload: {\n            mode : Mode,\n            window : Window\n        },\n        url: IP + \"/move_window\",\n        requestTimeout: 5000\n    },\n\n    {\n        payload:\n        {\n            fill: \"yellow\",\n            text: \"Looking for : \" + Window\n        }\n    } \n]",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 220,
+        "y": 60,
+        "wires": [
+            [
+                "a611ccc32d7daa9f"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "94d8487a8e9b9e49",
+        "type": "function",
+        "z": "92e6e0f4b69080d2",
+        "name": "Result ?",
+        "func": "if (msg.statusCode == 200) {\n    return [\n        {\n            payload : msg.payload\n        },\n\n        {\n            payload:\n            {\n                fill: \"green\",\n                text: msg.payload\n            }\n        }\n    ]\n}\nelse {\n    return [\n        null,\n        {\n            payload:\n            {\n                fill: \"red\",\n                text: msg.payload\n            }\n        }\n    ]\n}\n\n\n",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 530,
+        "y": 60,
+        "wires": [
+            [],
+            []
+        ]
+    },
+    {
+        "id": "919f5e1400eec6bf",
+        "type": "catch",
+        "z": "92e6e0f4b69080d2",
+        "name": "Error HTTP",
+        "scope": [
+            "a611ccc32d7daa9f"
+        ],
+        "uncaught": false,
+        "x": 380,
+        "y": 110,
+        "wires": [
+            [
+                "84b163d4f844455b"
+            ]
+        ]
+    },
+    {
+        "id": "84b163d4f844455b",
+        "type": "function",
+        "z": "92e6e0f4b69080d2",
+        "name": "Error",
+        "func": "return {\n    payload:\n        {\n            fill: \"red\",\n            text: msg.error\n        }\n};\n\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 520,
+        "y": 110,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "8a35695ef8395bda",
+        "type": "inject",
+        "z": "fe63191c73725cf3",
+        "name": "Demo clic",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 140,
+        "y": 340,
+        "wires": [
+            [
+                "fc4a07c6cdf647b6"
+            ]
+        ]
+    },
+    {
+        "id": "3ae621fe8ec16281",
+        "type": "subflow:92e6e0f4b69080d2",
+        "z": "fe63191c73725cf3",
+        "name": "",
+        "x": 450,
+        "y": 340,
+        "wires": [
+            [
+                "c1485dc0023fce43"
+            ]
+        ]
+    },
+    {
+        "id": "70fae51d09818dc6",
+        "type": "subflow:6c4ed0229be78487",
+        "z": "fe63191c73725cf3",
+        "name": "",
+        "x": 290,
+        "y": 280,
+        "wires": [
+            [
+                "6f35cb6401042d67"
+            ]
+        ]
+    },
+    {
+        "id": "c1485dc0023fce43",
+        "type": "delay",
+        "z": "fe63191c73725cf3",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "1",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 610,
+        "y": 340,
+        "wires": [
+            [
+                "04f809e7b01e3c7d"
+            ]
+        ]
+    },
+    {
+        "id": "04f809e7b01e3c7d",
+        "type": "subflow:9d4df3be6cf02735",
+        "z": "fe63191c73725cf3",
+        "name": "Clic on deploy",
+        "x": 770,
+        "y": 340,
+        "wires": [
+            [],
+            []
+        ]
+    },
+    {
+        "id": "2b021f69c41077dd",
+        "type": "inject",
+        "z": "fe63191c73725cf3",
+        "name": "List",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 130,
+        "y": 280,
+        "wires": [
+            [
+                "70fae51d09818dc6"
+            ]
+        ]
+    },
+    {
+        "id": "6f35cb6401042d67",
+        "type": "debug",
+        "z": "fe63191c73725cf3",
+        "name": "Windows",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 450,
+        "y": 280,
+        "wires": []
+    },
+    {
+        "id": "fc4a07c6cdf647b6",
+        "type": "delay",
+        "z": "fe63191c73725cf3",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "5",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 280,
+        "y": 340,
+        "wires": [
+            [
+                "3ae621fe8ec16281"
+            ]
+        ]
+    },
+    {
+        "id": "3ee9ac8d18fde781",
+        "type": "inject",
+        "z": "fe63191c73725cf3",
+        "name": "Demo clic",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 140,
+        "y": 400,
+        "wires": [
+            [
+                "384d05346a52453d"
+            ]
+        ]
+    },
+    {
+        "id": "6adc5fa1a16b9851",
+        "type": "subflow:92e6e0f4b69080d2",
+        "z": "fe63191c73725cf3",
+        "name": "",
+        "env": [
+            {
+                "name": "Window_list",
+                "value": "Node",
+                "type": "str"
+            }
+        ],
+        "x": 450,
+        "y": 400,
+        "wires": [
+            [
+                "d07f45a688b806ab"
+            ]
+        ]
+    },
+    {
+        "id": "d07f45a688b806ab",
+        "type": "delay",
+        "z": "fe63191c73725cf3",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "1",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 610,
+        "y": 400,
+        "wires": [
+            [
+                "854dcbd1e3c79961"
+            ]
+        ]
+    },
+    {
+        "id": "384d05346a52453d",
+        "type": "delay",
+        "z": "fe63191c73725cf3",
+        "name": "",
+        "pauseType": "delay",
+        "timeout": "5",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 280,
+        "y": 400,
+        "wires": [
+            [
+                "6adc5fa1a16b9851"
+            ]
+        ]
+    },
+    {
+        "id": "854dcbd1e3c79961",
+        "type": "subflow:962e0469ceb1a72d",
+        "z": "fe63191c73725cf3",
+        "name": "Press CTRL + D",
+        "env": [
+            {
+                "name": "Hotkey",
+                "value": "true",
+                "type": "bool"
+            },
+            {
+                "name": "Key_custom",
+                "value": "ctrl,d",
+                "type": "str"
+            }
+        ],
+        "x": 770,
+        "y": 400,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "290dd7a6ff6a7ac1",
+        "type": "comment",
+        "z": "fe63191c73725cf3",
+        "name": "",
+        "info": "Hello World\n",
+        "x": 140,
+        "y": 510,
+        "wires": []
+    },
+    {
+        "id": "f2ad8384044bbdfa",
+        "type": "inject",
+        "z": "fe63191c73725cf3",
+        "name": "Demo clic",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 140,
+        "y": 460,
+        "wires": [
+            [
+                "1aa28993304596f6"
+            ]
+        ]
+    },
+    {
+        "id": "1aa28993304596f6",
+        "type": "subflow:9d4df3be6cf02735",
+        "z": "fe63191c73725cf3",
+        "name": "Double clic comment",
+        "env": [
+            {
+                "name": "double_clic",
+                "value": "true",
+                "type": "bool"
+            },
+            {
+                "name": "img_custom",
+                "value": "comment.PNG",
+                "type": "str"
+            }
+        ],
+        "x": 320,
+        "y": 460,
+        "wires": [
+            [
+                "714c609503e4d2c3"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "c9a7f0fd692b7271",
+        "type": "subflow:9d4df3be6cf02735",
+        "z": "fe63191c73725cf3",
+        "name": "Clic on 1",
+        "env": [
+            {
+                "name": "img_custom",
+                "value": "1.PNG",
+                "type": "str"
+            }
+        ],
+        "x": 620,
+        "y": 460,
+        "wires": [
+            [
+                "418f8205cb54a118"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "714c609503e4d2c3",
+        "type": "delay",
+        "z": "fe63191c73725cf3",
+        "name": "0.5s",
+        "pauseType": "delay",
+        "timeout": "0.5",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 490,
+        "y": 460,
+        "wires": [
+            [
+                "c9a7f0fd692b7271"
+            ]
+        ]
+    },
+    {
+        "id": "9f7127ef675b4db9",
+        "type": "subflow:c32a07e2836e9c9e",
+        "z": "fe63191c73725cf3",
+        "name": "",
+        "x": 880,
+        "y": 500,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "418f8205cb54a118",
+        "type": "delay",
+        "z": "fe63191c73725cf3",
+        "name": "0.5s",
+        "pauseType": "delay",
+        "timeout": "0.5",
+        "timeoutUnits": "seconds",
+        "rate": "1",
+        "nbRateUnits": "1",
+        "rateUnits": "second",
+        "randomFirst": "1",
+        "randomLast": "5",
+        "randomUnits": "seconds",
+        "drop": false,
+        "allowrate": false,
+        "outputs": 1,
+        "x": 750,
+        "y": 460,
+        "wires": [
+            [
+                "b98752c88cc8f8d6"
+            ]
+        ]
+    },
+    {
+        "id": "b98752c88cc8f8d6",
+        "type": "function",
+        "z": "fe63191c73725cf3",
+        "name": "Hello World",
+        "func": "msg.payload = \"Hello World\";\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 890,
+        "y": 460,
+        "wires": [
+            [
+                "9f7127ef675b4db9"
+            ]
+        ]
+    },
+    {
+        "id": "a523641c37ab7887",
+        "type": "group",
+        "z": "fe63191c73725cf3",
+        "name": "Config",
+        "style": {
+            "stroke": "#000000",
+            "fill": "#7fb7df",
+            "fill-opacity": "0.51",
+            "label": true,
+            "color": "#000000"
+        },
+        "nodes": [
+            "59aced8259af99ca",
+            "8dc2a60a4a472d47",
+            "d58b8376dd39ba74",
+            "d6963d8184115f21",
+            "070fa71c495681bb",
+            "03dffd4408e3aad4",
+            "9d91ba0f1edfeedd",
+            "7ae231baed01cdd3",
+            "53f7ecbdce9fe4d1"
+        ],
+        "x": 64,
+        "y": 29,
+        "w": 642,
+        "h": 182
+    },
+    {
+        "id": "e14a23be4d201542",
+        "type": "subflow",
+        "name": "List images",
+        "info": "",
+        "category": "",
+        "in": [
+            {
+                "x": 90,
+                "y": 100,
+                "wires": [
+                    {
+                        "id": "d1ddeff9f2d62ee4"
+                    }
+                ]
+            }
+        ],
+        "out": [
+            {
+                "x": 700,
+                "y": 70,
+                "wires": [
+                    {
+                        "id": "86a5423ae5a5d5a1",
+                        "port": 0
+                    }
+                ]
+            }
+        ],
+        "env": [
+            {
+                "name": "path",
+                "type": "str",
+                "value": "/root/.node-red/icons",
+                "ui": {
+                    "icon": "font-awesome/fa-folder-open",
+                    "type": "input",
+                    "opts": {
+                        "types": [
+                            "str"
+                        ]
+                    }
+                }
+            }
+        ],
+        "meta": {},
+        "color": "#C0DEED",
+        "icon": "font-awesome/fa-file-photo-o",
+        "status": {
+            "x": 700,
+            "y": 120,
+            "wires": [
+                {
+                    "id": "86a5423ae5a5d5a1",
+                    "port": 1
+                },
+                {
+                    "id": "6112bccf38f5da20",
+                    "port": 0
+                }
+            ]
+        }
+    },
+    {
+        "id": "01494e1a741800b8",
+        "type": "exec",
+        "z": "e14a23be4d201542",
+        "command": "ls ",
+        "addpay": "payload",
+        "append": "",
+        "useSpawn": "false",
+        "timer": "",
+        "winHide": false,
+        "oldrc": false,
+        "name": "",
+        "x": 340,
+        "y": 100,
+        "wires": [
+            [
+                "86a5423ae5a5d5a1"
+            ],
+            [
+                "6112bccf38f5da20"
+            ],
+            []
+        ]
+    },
+    {
+        "id": "86a5423ae5a5d5a1",
+        "type": "function",
+        "z": "e14a23be4d201542",
+        "name": "List",
+        "func": "return [\n    {\n        payload: msg.payload\n    },\n    {\n        payload: {\n            fill: \"green\",\n            text: \"OK\"\n        }\n    }\n]",
+        "outputs": 2,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 470,
+        "y": 80,
+        "wires": [
+            [],
+            []
+        ]
+    },
+    {
+        "id": "6112bccf38f5da20",
+        "type": "function",
+        "z": "e14a23be4d201542",
+        "name": "Error",
+        "func": "\nreturn {\n    payload:\n        {\n            fill: \"red\",\n            text: msg.payload\n        }\n};\n\n",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 470,
+        "y": 120,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d1ddeff9f2d62ee4",
+        "type": "function",
+        "z": "e14a23be4d201542",
+        "name": "Set path",
+        "func": "const path = env.get(\"path\") || '';\nmsg.payload = path;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 200,
+        "y": 100,
+        "wires": [
+            [
+                "01494e1a741800b8"
+            ]
+        ]
+    },
+    {
+        "id": "59aced8259af99ca",
+        "type": "inject",
+        "z": "fe63191c73725cf3",
+        "g": "a523641c37ab7887",
+        "name": "Set",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 160,
+        "y": 70,
+        "wires": [
+            [
+                "8dc2a60a4a472d47"
+            ]
+        ]
+    },
+    {
+        "id": "8dc2a60a4a472d47",
+        "type": "change",
+        "z": "fe63191c73725cf3",
+        "g": "a523641c37ab7887",
+        "name": "Set IP",
+        "rules": [
+            {
+                "t": "set",
+                "p": "Client_IP",
+                "pt": "global",
+                "to": "192.168.178.10:8000",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 290,
+        "y": 70,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "d58b8376dd39ba74",
+        "type": "fileinject",
+        "z": "fe63191c73725cf3",
+        "g": "a523641c37ab7887",
+        "name": "Add image",
+        "x": 170,
+        "y": 120,
+        "wires": [
+            [
+                "070fa71c495681bb"
+            ]
+        ]
+    },
+    {
+        "id": "d6963d8184115f21",
+        "type": "subflow:e14a23be4d201542",
+        "z": "fe63191c73725cf3",
+        "g": "a523641c37ab7887",
+        "name": "",
+        "x": 330,
+        "y": 170,
+        "wires": [
+            [
+                "53f7ecbdce9fe4d1"
+            ]
+        ]
+    },
+    {
+        "id": "070fa71c495681bb",
+        "type": "function",
+        "z": "fe63191c73725cf3",
+        "g": "a523641c37ab7887",
+        "name": "Set path",
+        "func": "msg.path =  \"/root/.node-red/icons/\" + msg.filename;\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 320,
+        "y": 120,
+        "wires": [
+            [
+                "03dffd4408e3aad4"
+            ]
+        ]
+    },
+    {
+        "id": "03dffd4408e3aad4",
+        "type": "file",
+        "z": "fe63191c73725cf3",
+        "g": "a523641c37ab7887",
+        "name": "",
+        "filename": "path",
+        "filenameType": "msg",
+        "appendNewline": false,
+        "createDir": true,
+        "overwriteFile": "true",
+        "encoding": "none",
+        "x": 470,
+        "y": 120,
+        "wires": [
+            [
+                "9d91ba0f1edfeedd",
+                "d6963d8184115f21"
+            ]
+        ]
+    },
+    {
+        "id": "9d91ba0f1edfeedd",
+        "type": "image viewer",
+        "z": "fe63191c73725cf3",
+        "g": "a523641c37ab7887",
+        "name": "",
+        "width": 160,
+        "data": "payload",
+        "dataType": "msg",
+        "active": false,
+        "x": 610,
+        "y": 120,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "7ae231baed01cdd3",
+        "type": "inject",
+        "z": "fe63191c73725cf3",
+        "g": "a523641c37ab7887",
+        "name": "",
+        "props": [
+            {
+                "p": "payload"
+            },
+            {
+                "p": "topic",
+                "vt": "str"
+            }
+        ],
+        "repeat": "",
+        "crontab": "",
+        "once": false,
+        "onceDelay": 0.1,
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "x": 170,
+        "y": 170,
+        "wires": [
+            [
+                "d6963d8184115f21"
+            ]
+        ]
+    },
+    {
+        "id": "53f7ecbdce9fe4d1",
+        "type": "debug",
+        "z": "fe63191c73725cf3",
+        "g": "a523641c37ab7887",
+        "name": "IMG List",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "targetType": "msg",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 490,
+        "y": 170,
+        "wires": []
+    }
+]
